@@ -1,10 +1,10 @@
 # Tollgate
 
-See what your Claude Code sessions cost while you work, and find out whether your model's behavior changed.
+See what your Claude Code and Cowork sessions cost while you work, and find out whether your model's behavior changed.
 
 **[⬇ Download tollgate.mjs](https://github.com/JNKut/tollgate-download/releases/latest/download/tollgate.mjs)** (one file, about 900 KB, Mac or Linux, needs Node 20+)
 
-Everything runs on your computer. It reads Claude Code's own logs in `~/.claude/projects` and sends nothing anywhere.
+Works with Claude Code in the terminal, Claude Code in the desktop app or VS Code, and Cowork. Everything runs on your computer: it reads the logs those apps already keep on your Mac and sends nothing anywhere.
 
 ## Setup (about 5 minutes)
 
@@ -19,9 +19,9 @@ Everything runs on your computer. It reads Claude Code's own logs in `~/.claude/
    ```
    node ~/tollgate.mjs
    ```
-   A small window shows your current session's context size, what it has cost, when the cache expires, and when starting a fresh session would be cheaper. Turn on **Alerts** for desktop notifications.
+   A small window shows your current session's context size, what it has cost (including any helper agents it started), when the cache expires, and when starting a fresh session would be cheaper. It follows whichever session you used last, in any of the apps above, and the menu at the top lets you pick another. Turn on **Alerts** for desktop notifications.
 
-4. **Optional: the Claude Code status line.** Run `node ~/tollgate.mjs help` and copy the `statusLine` line it prints into `~/.claude/settings.json`.
+4. **Optional: the Claude Code status line** (terminal only). Run `node ~/tollgate.mjs help` and copy the `statusLine` line it prints into `~/.claude/settings.json`.
 
 5. **Optional: model health checks.** These send a fixed set of test prompts to a model and track whether its answers change. They need an Anthropic API key:
    ```
