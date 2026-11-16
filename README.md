@@ -2,13 +2,13 @@
 
 See what your Claude sessions cost while you work, and find out whether your model's behavior changed.
 
-**[⬇ Download tollgate.mjs](https://github.com/JNKut/tollgate-download/releases/latest/download/tollgate.mjs)** (one file, about 900 KB, needs Node 20+)
+**[⬇ Download for Mac](https://github.com/JNKut/tollgate-download/releases/latest/download/Tollgate-mac.zip)**: an app you double-click, no Terminal needed.
+
+Linux, or prefer Terminal? Use the [single file](#without-the-app-terminal-or-linux) instead.
 
 Works with **Cowork**, **Claude Code in the desktop app**, and **Claude Code in the terminal** (or VS Code). Everything runs on your computer: it reads the logs those apps already keep and sends nothing anywhere.
 
 **Regular chats aren't included.** A normal conversation in the Claude app (including research) runs on Anthropic's servers and leaves no log on your computer, so there is nothing for Tollgate to read. It sees work that runs on your computer: Cowork tasks and Claude Code sessions.
-
-**There's one Tollgate window for everything.** You don't open a new one per session: a new session appears in the window after its first reply, and the window follows whichever session you used last. Use the menu at the top to switch between them.
 
 ## What you get
 
@@ -22,46 +22,20 @@ A small window next to your work that shows, for whichever session you used last
 
 Costs are API-equivalent prices. On a Pro or Max subscription this is usage, not a bill, but it shows which sessions eat your limits.
 
-## Setup
+There's **one Tollgate window for everything**: a new session appears after its first reply, labelled **Cowork**, **Desktop app**, **Terminal** or **VS Code**, and the window follows whichever one you used last. Use the menu at the top to switch.
 
-Pick the app you use. If you use more than one, any setup works: the popup shows sessions from all of them, labelled **Cowork**, **Desktop app**, **Terminal** or **VS Code**.
+## Setup on a Mac
 
-### Cowork
+1. **[Download Tollgate-mac.zip](https://github.com/JNKut/tollgate-download/releases/latest/download/Tollgate-mac.zip)** and open it. Drag **Tollgate** into your **Applications** folder.
+2. **Double-click Tollgate.** The first time, macOS says it can't verify the app. That's because it isn't from the App Store or signed with a paid Apple developer account. To allow it, once:
+   - Click **Done** in that message.
+   - Open **System Settings → Privacy & Security** and scroll down to *"Tollgate" was blocked*.
+   - Click **Open Anyway**, then confirm with your password or Touch ID.
+3. **The Tollgate window opens.** The first time can take a minute if it needs to download Node.js, which Tollgate runs on; a notification tells you. Tollgate then starts by itself whenever you log in.
 
-Cowork runs in its own sandbox and can't install things on your Mac, so this needs Terminal once. You don't need to know Terminal: copy and paste each line, then press Return.
+To open the window again later, double-click Tollgate, or press ⌘ Space and type *Tollgate*.
 
-1. **Install Node** (skip if you have it): download the LTS version from [nodejs.org](https://nodejs.org) and run the installer.
-2. **Open Terminal** (press ⌘ Space, type *Terminal*, press Return) and paste:
-   ```
-   curl -L -o ~/tollgate.mjs https://github.com/JNKut/tollgate-download/releases/latest/download/tollgate.mjs
-   ```
-3. **Start it in the background**, so it keeps running after you close Terminal:
-   ```
-   nohup node ~/tollgate.mjs > /dev/null 2>&1 &
-   ```
-   The Tollgate window opens. You can close Terminal now.
-4. **Use Cowork as usual.** A task appears in the popup after its first reply. Tasks the app runs on your computer may be labelled **Cowork** or **Desktop app**, depending on your app version. A task that runs as a regular chat won't appear (see above).
-
-### Claude Code in the desktop app
-
-The easy way: **paste this into a Claude Code session in the desktop app** and let Claude do the setup.
-
-> Install Tollgate for me from https://github.com/JNKut/tollgate-download: install Node 20+ if it's missing, download tollgate.mjs to my home folder, and start it in the background with `nohup node ~/tollgate.mjs > /dev/null 2>&1 &`. Show me each command before you run it.
-
-Or do it yourself: follow steps 1–3 under [Cowork](#cowork). They're the same.
-
-The popup is how you see Tollgate here. Desktop-app sessions show up labelled **Desktop app**.
-
-### Claude Code in the terminal (or VS Code)
-
-```
-curl -L -o ~/tollgate.mjs https://github.com/JNKut/tollgate-download/releases/latest/download/tollgate.mjs
-node ~/tollgate.mjs
-```
-
-`node -v` must say 20 or higher ([nodejs.org](https://nodejs.org) if not). `node ~/tollgate.mjs` keeps the popup running while that terminal is open; use the `nohup` line from [Cowork](#cowork) step 3 to run it in the background instead.
-
-**Optional status line**, shown under every reply in the terminal. Run `node ~/tollgate.mjs help` and add the `statusLine` line it prints to `~/.claude/settings.json`. It looks like:
+**Optional for Claude Code in the terminal:** a status line under every reply. Run `node ~/tollgate.mjs help` and add the `statusLine` line it prints to `~/.claude/settings.json`. It looks like:
 
 ```
 Opus 5.5 · ctx 312k · session $16.40 · prompt $0.42 · next turn ≥$0.06 · cache till 14:32
@@ -72,40 +46,50 @@ Opus 5.5 · ctx 312k · session $16.40 · prompt $0.42 · next turn ≥$0.06 · 
 
 | To... | Do this |
 |---|---|
-| Reopen the window after closing it | Run `node ~/tollgate.mjs` again. If Tollgate is already running, this just opens a new window. |
-| Start it after restarting your Mac | Run the `nohup` line from [Cowork](#cowork) step 3 again |
-| Get desktop notifications | Click **Alerts** in the popup |
-| Stop it | `pkill -f tollgate.mjs` |
-| Update to the newest version | Run the `curl` line again, then stop and start it |
+| Open the window | Double-click Tollgate |
+| Get desktop notifications | Click **Alerts** in the window |
+| Stop it starting at login | Click **turn off** at the bottom of the window |
+| Quit it | Click **quit Tollgate** at the bottom of the window |
+| Update | Download the zip again, replace Tollgate in Applications, and open it. It replaces the running copy. |
 
 ## Model health checks (optional)
 
-These send a fixed set of test prompts to a model twice a day and track whether its answers change: more refusals, broken formats, shorter or ungrounded answers. They need an Anthropic API key from [console.anthropic.com](https://console.anthropic.com). This works the same whichever app you use, because it calls the API directly.
+These send a fixed set of test prompts to a model twice a day and track whether its answers change: more refusals, broken formats, shorter or ungrounded answers. They need an Anthropic API key from [console.anthropic.com](https://console.anthropic.com) (API keys → Create key). They work the same whichever Claude app you use.
 
-1. Create the key file and open it:
-   ```
-   mkdir -p ~/.tollgate && touch ~/.tollgate/.env && open -e ~/.tollgate/.env
-   ```
-   Type `ANTHROPIC_API_KEY=` followed by your key, then save.
-2. Run one check:
-   ```
-   node ~/tollgate.mjs canary
-   ```
-   The default model is Haiku, at about 0.2¢ per run. To check the model you work with, add `--model claude-opus-5-5` (about 7¢ per run) or `--model claude-sonnet-5-5`.
-3. Run it automatically at 9am and 9pm:
-   ```
-   (crontab -l 2>/dev/null; echo "0 9,21 * * * $(command -v node) $HOME/tollgate.mjs canary --min-gap-hours 5 >> $HOME/.tollgate/canary.log 2>&1") | crontab -
-   ```
-   Add the same `--model ...` after `canary` if you used one in step 2. Runs are skipped while your Mac is asleep.
+**In the Tollgate window:** under *Set up model health checks*, paste the key, pick a model, and click **Start checks**.
 
-After about 11 days of runs, the popup's **Model health** section switches from "learning normal" to **no change** or **drift** for each test suite. It's tuned to about one false alarm per 90 days. If the model that drifted is the one your current session uses, a red banner appears at the top.
+- **Which model:** Haiku costs about 0.2¢ a check. Opus about 7¢ (roughly $1 a week at two checks a day). Pick the one you work with if you want to know when *it* changes.
+- **What happens:** the first check runs right away. Then checks run at 9:00 and 21:00. If your Mac is asleep, the check runs once when it wakes.
+- **Your key** is checked with Anthropic, then saved only on your computer, in `~/.tollgate/.env`, readable only by you.
 
-- Check the log: `tail ~/.tollgate/canary.log`
-- Stop the automatic runs: `crontab -l | grep -v tollgate.mjs | crontab -`
+After about 11 days of checks, the **Model health** section switches from "learning normal" to **no change** or **drift** for each test suite. It's tuned to about one false alarm per 90 days. If the model that drifted is the one your current session uses, a red banner appears at the top.
+
+To change the model or stop checks, use **change** or **stop** under Model health.
+
+## Without the app (Terminal, or Linux)
+
+Needs Node 20+ ([nodejs.org](https://nodejs.org)). Then:
+
+```
+curl -L -o ~/tollgate.mjs https://github.com/JNKut/tollgate-download/releases/latest/download/tollgate.mjs
+node ~/tollgate.mjs app
+```
+
+`app` sets Tollgate to start at login and opens the window. On Linux it uses an autostart entry; model health checks set up in the window use a crontab line. Run `node ~/tollgate.mjs` any time to open the window again. To update, run the `curl` line again, then `node ~/tollgate.mjs app`.
+
+**Claude Code in the desktop app** can also do this for you. Paste this into a session:
+
+> Install Tollgate for me from https://github.com/JNKut/tollgate-download: install Node 20+ if it's missing, download tollgate.mjs to my home folder, then run `node ~/tollgate.mjs app`. Show me each command before you run it.
+
+Cowork can't install it, because Cowork runs in a sandbox separate from your computer. Use the Mac app.
 
 ## Notes
 
 - **Where it reads from:** Claude Code (terminal, desktop app, VS Code) logs to `~/.claude/projects`. Cowork keeps each session in the Claude app's data folder (`~/Library/Application Support/Claude/local-agent-mode-sessions` on a Mac). Tollgate only reads these; it never changes them. From Cowork's session files it uses only the session title.
-- **Your data** (canary results and your API key) lives in `~/.tollgate`. To remove everything, run `pkill -f tollgate.mjs`, then delete `~/.tollgate` and `~/tollgate.mjs`.
-- **Platforms:** tested on macOS. Linux should work. Windows is untested.
+- **What it installs:**
+  - `~/tollgate.mjs`: the program.
+  - `~/.tollgate`: your data and settings, plus Node.js if the app downloaded it.
+  - Two login items in `~/Library/LaunchAgents`: one starts Tollgate, the other runs the checks.
+- **Uninstall:** in Terminal, run `node ~/tollgate.mjs uninstall`. It stops Tollgate and removes the login items. Then delete Tollgate from Applications, plus `~/.tollgate` and `~/tollgate.mjs`.
+- **Platforms:** tested on macOS. Linux should work. Windows is untested and has no automatic checks yet.
 - This is early. If anything is confusing or breaks, please say so: that's the most useful thing you can tell me.
