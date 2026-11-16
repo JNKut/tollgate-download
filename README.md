@@ -21,7 +21,7 @@ Works with Claude Code in the terminal, Claude Code in the desktop app or VS Cod
    ```
    A small window shows your current session's context size, what it has cost (including any helper agents it started), when the cache expires, and when starting a fresh session would be cheaper. It follows whichever session you used last, in any of the apps above, and the menu at the top lets you pick another. Turn on **Alerts** for desktop notifications.
 
-4. **Optional: the Claude Code status line** (terminal only). Run `node ~/tollgate.mjs help` and copy the `statusLine` line it prints into `~/.claude/settings.json`.
+4. **Optional: the Claude Code status line** (for Claude Code in the terminal; everyone else uses the popup). Run `node ~/tollgate.mjs help` and copy the `statusLine` line it prints into `~/.claude/settings.json`.
 
 5. **Optional: model health checks.** These send a fixed set of test prompts to a model and track whether its answers change. They need an Anthropic API key:
    ```
