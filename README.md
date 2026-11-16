@@ -6,6 +6,10 @@ See what your Claude sessions cost while you work, and find out whether your mod
 
 Works with **Cowork**, **Claude Code in the desktop app**, and **Claude Code in the terminal** (or VS Code). Everything runs on your computer: it reads the logs those apps already keep and sends nothing anywhere.
 
+**Regular chats aren't included.** A normal conversation in the Claude app (including research) runs on Anthropic's servers and leaves no log on your computer, so there is nothing for Tollgate to read. It sees work that runs on your computer: Cowork tasks and Claude Code sessions.
+
+**There's one Tollgate window for everything.** You don't open a new one per session: a new session appears in the window after its first reply, and the window follows whichever session you used last. Use the menu at the top to switch between them.
+
 ## What you get
 
 A small window next to your work that shows, for whichever session you used last:
@@ -36,7 +40,7 @@ Cowork runs in its own sandbox and can't install things on your Mac, so this nee
    nohup node ~/tollgate.mjs > /dev/null 2>&1 &
    ```
    The Tollgate window opens. You can close Terminal now.
-4. **Use Cowork as usual.** A session appears in the popup after its first reply. The popup follows the session you used most recently; use the menu at the top to pick another.
+4. **Use Cowork as usual.** A task appears in the popup after its first reply. Tasks the app runs on your computer may be labelled **Cowork** or **Desktop app**, depending on your app version. A task that runs as a regular chat won't appear (see above).
 
 ### Claude Code in the desktop app
 
