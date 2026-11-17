@@ -27,6 +27,7 @@ A small window next to your work that shows, for whichever session you used last
 - **Cache countdown:** how long until the cache expires. After that, the next message re-writes everything and costs much more.
 - **Cost:** this prompt, this session, and any helper agents the session started.
 - **Advice:** when to start a fresh session or compact, and a warning *before* the cache expires.
+- **Plan limits** (Pro and Max): how much of your 5-hour and weekly limit you've used, when each resets, and a warning when you'll run out at your current pace. See [Plan limits](#plan-limits-pro-and-max).
 - **Model health** (optional): whether the model's behavior changed. See [Model health checks](#model-health-checks-optional).
 
 Costs are API-equivalent prices. On a Pro or Max subscription this is usage, not a bill, but it shows which sessions eat your limits.
@@ -58,6 +59,7 @@ node ~/tollgate.mjs app      # start at login (a LaunchAgent on macOS, an autost
 | `node ~/tollgate.mjs canary` | Run the model health checks once (see [below](#model-health-checks-optional)) |
 | `node ~/tollgate.mjs analyze` | Print the drift report for your checks |
 | `node ~/tollgate.mjs uninstall` | Stop it, and remove its login item and scheduled checks |
+| `node ~/tollgate.mjs feedback` | Open a GitHub issue to report a problem or suggest something |
 | `node ~/tollgate.mjs help` | All of the above, with the exact paths on your machine |
 
 **To update:** run the `curl` line again. If it's running in the background, follow with `node ~/tollgate.mjs app`, which replaces the running copy.
@@ -71,9 +73,11 @@ node ~/tollgate.mjs app      # start at login (a LaunchAgent on macOS, an autost
 It looks like:
 
 ```
-Opus 5.5 · ctx 312k · session $16.40 · prompt $0.42 · next turn ≥$0.06 · cache till 14:32
+Opus 5.5 · ctx 312k · session $16.40 · prompt $0.42 · next turn ≥$0.06 · cache till 14:32 · 5h 62% → 15:40 · wk 18%
 ⚠ ctx 312k: /compact or start fresh (each turn re-reads it)
 ```
+
+The `5h` and `wk` parts are your plan limits; they appear on Pro and Max after the first reply.
 
 **Let Claude Code install it:** in the desktop app or the terminal, paste:
 
@@ -99,6 +103,17 @@ The app puts the same `~/tollgate.mjs` in your home folder, so every terminal co
 | Stop it starting at login | Click **turn off** at the bottom of the window |
 | Quit it | Click **quit Tollgate** at the bottom of the window |
 | Update | Download the zip again, replace Tollgate in Applications, and open it. It replaces the running copy. |
+
+## Plan limits (Pro and Max)
+
+The window's **Plan limits** section shows how much of your 5-hour and weekly limits you've used and when each resets. If you keep going at your current pace and would run out before the reset, it tells you when: *"At this pace you'll hit it around 14:20."* With **Alerts** on, you get a notification at 80%, 95% and 100%.
+
+Where the numbers come from (both are already on your computer; Tollgate asks no one):
+
+- **Claude Code in the terminal**, with Tollgate's [status line](#install-from-the-terminal) set up: exact and live. Claude Code passes the limits to the status line after every reply, and Tollgate saves them so the window can show them too.
+- **Otherwise, the Claude app**, which saves a reading now and then (often hours apart), so the window shows how old it is. This covers Cowork and the desktop app.
+
+The limits are shared across Claude (chats, Cowork and Claude Code), so either reading covers everything you do. API-key users have no plan limits, and the section doesn't appear.
 
 ## Model health checks (optional)
 
@@ -134,6 +149,7 @@ After about 11 days of checks, the **Model health** section switches from "learn
   - `~/.tollgate`: your data and settings. Override the location with `TOLLGATE_HOME`. If the Mac app downloaded Node.js, it's here too.
   - Login items, only if you used `app`, the Mac app, or set up checks in the window. On macOS: `com.tollgate.app.popup` and `com.tollgate.app.canary` in `~/Library/LaunchAgents`. On Linux: `~/.config/autostart/tollgate.desktop` and a crontab line.
 - **Uninstall:** run `node ~/tollgate.mjs uninstall`, then delete `~/.tollgate`, `~/tollgate.mjs`, and Tollgate in Applications if you have the app.
-- **Network:** the window is served on `127.0.0.1` only. The only outbound requests are the model health checks to Anthropic, and the Mac app's one-time Node.js download from nodejs.org, checksum-verified.
+- **Network:** the window is served on `127.0.0.1` only. The only outbound requests are the model health checks to Anthropic, and the Mac app's one-time Node.js download from nodejs.org, checksum-verified. Tollgate collects nothing about you.
 - **Platforms:** tested on macOS. Linux should work. Windows is untested and has no automatic checks yet.
-- This is early. If anything is confusing or breaks, please say so: that's the most useful thing you can tell me.
+- **Plan limits** are read from what Claude Code passes to the status line (saved in `~/.tollgate/limits.jsonl`, last 8 days) and from the Claude app's own `plan-usage-history.json`.
+- This is early. If anything is confusing or breaks, please say so: click **Send feedback** at the bottom of the window, or run `node ~/tollgate.mjs feedback`. Either one opens a GitHub issue with your Tollgate version, system and which features are on (no file paths, names, prompts or costs). You can read and edit it, and nothing is sent unless you press Submit.
