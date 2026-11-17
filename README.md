@@ -28,6 +28,8 @@ A small window next to your work that shows, for whichever session you used last
 - **Cost:** this prompt, this session, and any helper agents the session started.
 - **Advice:** when to start a fresh session or compact, and a warning *before* the cache expires.
 - **Plan limits** (Pro and Max): how much of your 5-hour and weekly limit you've used, when each resets, and a warning when you'll run out at your current pace. See [Plan limits](#plan-limits-pro-and-max).
+- **Model hint** (optional): before a prompt is sent, a tip when Sonnet would likely do it for about half the cost, learned from your own past prompts. See [Model hint](#model-hint-optional).
+- **Switch guard** (optional): when you `/model` mid-session, what the switch costs and after how many turns it pays off, right in Claude Code's "Switch model?" question. See [Switch guard](#switch-guard-optional).
 - **Model health** (optional): whether the model's behavior changed. See [Model health checks](#model-health-checks-optional).
 
 Costs are API-equivalent prices. On a Pro or Max subscription this is usage, not a bill, but it shows which sessions eat your limits.
@@ -58,7 +60,10 @@ node ~/tollgate.mjs app      # start at login (a LaunchAgent on macOS, an autost
 | `node ~/tollgate.mjs statusline` | Status line for Claude Code (see below) |
 | `node ~/tollgate.mjs canary` | Run the model health checks once (see [below](#model-health-checks-optional)) |
 | `node ~/tollgate.mjs analyze` | Print the drift report for your checks |
-| `node ~/tollgate.mjs uninstall` | Stop it, and remove its login item and scheduled checks |
+| `node ~/tollgate.mjs hint tip` | Turn on the [model hint](#model-hint-optional): a tip before sending when a cheaper model would do. `hint ask` holds the prompt once instead; `hint off` turns it off |
+| `node ~/tollgate.mjs fit` | What your last week of prompts says about which model to use |
+| `node ~/tollgate.mjs guard on` | Turn on the [switch guard](#switch-guard-optional): the cost of a mid-session `/model` switch, before you confirm it. `guard off` turns it off |
+| `node ~/tollgate.mjs uninstall` | Stop it, and remove its login item, scheduled checks, model hint and switch guard |
 | `node ~/tollgate.mjs feedback` | Open a GitHub issue to report a problem or suggest something |
 | `node ~/tollgate.mjs help` | All of the above, with the exact paths on your machine |
 
@@ -115,6 +120,55 @@ Where the numbers come from (both are already on your computer; Tollgate asks no
 
 The limits are shared across Claude (chats, Cowork and Claude Code), so either reading covers everything you do. API-key users have no plan limits, and the section doesn't appear.
 
+## Model hint (optional)
+
+Picking the model is the biggest lever on cost and limits, but it has to happen *before* you send. Tollgate can check each prompt just before Claude Code sends it:
+
+```
+UserPromptSubmit says: Tollgate: Sonnet would likely do this for about half the cost
+(14 of your 16 similar prompts were quick). Type /model sonnet to switch.
+```
+
+- **Tip** (`node ~/tollgate.mjs hint tip`, or **Tip before sending** in the window's Model fit section): the prompt goes through and the tip shows under it, so you can switch for the next ones.
+- **Ask first** (`hint ask`): the prompt is held back once and put back in the box. Type `/model sonnet` first if you want, then press Enter. Pressing Enter sends it unchanged either way.
+- **Off** (`hint off`).
+
+How it decides:
+
+- **From your own history:** it learns which kinds of prompts were quick for *you* (at most 3 steps, a short answer, no helper agents) from your Claude Code logs on this computer, and relearns every 6 hours. It only ever suggests a cheaper model. Haiku is suggested only when your history shows one-step answers for that kind of prompt.
+- **Only when switching pays off:** each model has its own cache, so switching in the middle of a session makes the new model re-read the whole conversation at full price. Claude Code starts a session at about 35–70k tokens, so the hint mostly speaks up on a session's **first prompt** or after a long break, when switching costs nothing extra. Mid-session it stays quiet unless the switch pays for itself within a few turns.
+- **It checks itself:** after each tip it looks at what the prompt turned into. If it's right less than 60% of the time for you, it goes quiet, and the window says so.
+
+What it changes and saves:
+
+- **Your Claude Code settings:** it adds one hook to `~/.claude/settings.json` and saves a backup next to it first (`settings.json.tollgate-backup`). It keeps your other settings and hooks.
+- **Your prompts are read, never saved:** each prompt is read on your computer at the moment you send it. Saved are only a verb from a fixed list (like "rename" or "design"), a size bucket and yes/no flags, in `~/.tollgate/modelfit.json` and `hints.jsonl`.
+- **It needs Claude Code:** tested in the terminal. Claude Code in the desktop app and VS Code reads the same settings, but that's untested. Cowork and regular chats don't run hooks.
+- **It can't switch for you:** Claude Code doesn't let a hook change the model, so you type `/model`.
+- **Turn on the [status line](#install-from-the-terminal) too:** it tells the hint which model each session is on, including on its first prompt.
+
+## Switch guard (optional)
+
+Switching to a cheaper model in the middle of a session usually costs more than it saves. Each model has its own prompt cache, so the new model has to write the whole conversation into its cache first. Claude Code already asks "Switch model?" when that happens, but it doesn't tell you what it costs. With the guard on, the question has the numbers:
+
+```
+Switch model?
+A PreModelSwitch hook asked you to confirm
+Tollgate: Switching to Sonnet now costs ~72¢ extra (API prices).
+Sonnet has to re-cache all 190k tokens of this conversation.
+Then each quick turn is ~6¢ cheaper: pays off after ~13 turns.
+Cheaper: finish this task here, then /clear and switch.
+❯ 1. Yes, switch to Sonnet 5.5
+  2. No, go back
+```
+
+- **Turn on:** `node ~/tollgate.mjs guard on`, or **Turn on** next to Switch guard in the window's Model fit section. `guard off` turns it off.
+- **Cheap switches go straight through:** when switching costs under 5¢ extra, or pays off within 3 turns, it skips the question.
+- **Cache already expired:** switching then costs nothing extra. Claude Code doesn't ask, and neither does the guard.
+- **Prices:** the numbers are at API list prices. On Pro and Max you don't pay per token, but the same re-caching comes out of your plan limits.
+- **Where it works:** `/model` and the model picker in Claude Code in the terminal. Switches from VS Code, the desktop app or the SDK reach Claude Code another way, where it can't show a question (it would refuse the switch instead), so the guard leaves those alone.
+- **What it changes and saves:** one hook in `~/.claude/settings.json`, backed up first. In `~/.tollgate/switches.jsonl` it notes each switch it answered: when, which models, context size and cost. Never your prompts.
+
 ## Model health checks (optional)
 
 These send a fixed set of test prompts to a model twice a day and track whether its answers change: more refusals, broken formats, shorter or ungrounded answers. They need an Anthropic API key from [console.anthropic.com](https://console.anthropic.com) (API keys → Create key). They work the same whichever Claude app you use.
@@ -147,6 +201,7 @@ After about 11 days of checks, the **Model health** section switches from "learn
 - **What it writes:**
   - `~/tollgate.mjs`: the program.
   - `~/.tollgate`: your data and settings. Override the location with `TOLLGATE_HOME`. If the Mac app downloaded Node.js, it's here too.
+  - Hooks in `~/.claude/settings.json`, only if you turned on the model hint or the switch guard (backup saved next to it).
   - Login items, only if you used `app`, the Mac app, or set up checks in the window. On macOS: `com.tollgate.app.popup` and `com.tollgate.app.canary` in `~/Library/LaunchAgents`. On Linux: `~/.config/autostart/tollgate.desktop` and a crontab line.
 - **Uninstall:** run `node ~/tollgate.mjs uninstall`, then delete `~/.tollgate`, `~/tollgate.mjs`, and Tollgate in Applications if you have the app.
 - **Network:** the window is served on `127.0.0.1` only. The only outbound requests are the model health checks to Anthropic, and the Mac app's one-time Node.js download from nodejs.org, checksum-verified. Tollgate collects nothing about you.
